@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Conflict Checker</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">KFUPM Exam Conflict Checker</h1>
+        
+        <!-- Display the term number dynamically -->
+        <h5>Term: {{ term }}</h5>
+
+        <form action="/check_conflicts" method="POST" id="course-form">
+            <div id="course-dropdowns">
+                <!-- First dropdown (always visible and required) -->
+                <div class="form-group">
+                    <label for="course1">Select Your Courses:</label>
+                    <select id="course1" name="courses" class="form-control" required>
+                        <option value="" disabled selected>Select Course 1</option>
+                        {% for course in courses %}
+                        <option value="{{ course }}">{{ course }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Second dropdown (required) -->
+                <div class="form-group">
+                    <select id="course2" name="courses" class="form-control" required>
+                        <option value="" disabled selected>Select Course 2</option>
+                        {% for course in courses %}
+                        <option value="{{ course }}">{{ course }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- The Button -->
+            <button type="submit" class="btn btn-primary mt-4" id="submit-btn">Check Conflicts</button>
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center mt-5">
+        <p>Created by <strong>Mohammed Abudeeb</strong></p>
+    </footer>
+
+    <script>
+        let maxCourses = 10;
+        let courseCount = 2;  // Start with 2 dropdowns (first two are required)
+
+        // Pass courseList from the backend into JavaScript as a JSON object
+        let courseList = JSON.parse('{{ courses|tojson|safe }}');
+
+        function updateDropdownOptions() {
+            const selectedCourses = Array.from(document.querySelectorAll('select[name="courses"]'))
+                .map(select => select.value)
+                .filter(val => val); // Get all selected courses
+
+            document.querySelectorAll('select[name="courses"]').forEach(select => {
+                Array.from(select.options).forEach(option => {
+                    if (selectedCourses.includes(option.value) && option.value !== select.value) {
+                        option.disabled = true; // Disable already selected options in other dropdowns
+                    } else {
+                        option.disabled = false; // Re-enable options that are not selected in other dropdowns
+                    }
+                });
+            });
+        }
+
+        function addCourseDropdown() {
+            if (courseCount < maxCourses) {
+                courseCount++;
+
+                // Create a new div and select element for the additional dropdown
+                let newDiv = document.createElement('div');
+                newDiv.className = 'form-group mt-3';
+
+                let newSelect = document.createElement('select');
+                newSelect.name = 'courses';
+                newSelect.className = 'form-control';
+                newSelect.required = false;  // Set the additional dropdowns as optional
+
+                // Add default option
+                let defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                defaultOption.textContent = `Select Course ${courseCount}`;
+                newSelect.appendChild(defaultOption);
+
+                // Populate the new dropdown with course options
+                courseList.forEach(course => {
+                    let option = document.createElement('option');
+                    option.value = course;
+                    option.textContent = course;
+                    newSelect.appendChild(option);
+                });
+
+                // Append the new dropdown to the form
+                newDiv.appendChild(newSelect);
+                document.getElementById('course-dropdowns').appendChild(newDiv);
+
+                // Move the submit button below the new dropdown
+                document.getElementById('course-form').appendChild(document.getElementById('submit-btn'));
+
+                // Only allow adding a new dropdown when the user selects a course from this new one
+                newSelect.addEventListener('change', function() {
+                    if (!newSelect.dataset.dropdownAdded) {
+                        addCourseDropdown();
+                        newSelect.dataset.dropdownAdded = true;  // Mark this dropdown as already having triggered a new one
+                    }
+                    updateDropdownOptions();  // Update the options to disable duplicates
+                });
+            }
+        }
+
+        // Add event listener to the second dropdown to trigger the addition of new ones after it's selected
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('course2').addEventListener('change', function () {
+                if (!this.dataset.dropdownAdded) {
+                    addCourseDropdown();
+                    this.dataset.dropdownAdded = true;  // Mark this dropdown as already having triggered a new one
+                }
+                updateDropdownOptions();  // Update the options to disable duplicates
+            });
+
+            // Also call updateDropdownOptions whenever a course is selected or changed
+            document.querySelectorAll('select[name="courses"]').forEach(select => {
+                select.addEventListener('change', updateDropdownOptions);
+            });
+        });
+    </script>
+</body>
+</html>

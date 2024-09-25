@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Schedule and Conflict Check</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Your Exam Schedule and Conflict Check</h1>
+        <p>Term: {{ term }}</p>
+
+        {% if conflicts %}
+        <div class="alert alert-danger" role="alert">
+            <strong>Conflicting exams found!</strong>
+            <ul>
+                {% for conflict in conflicts %}
+                <li>Conflict between {{ conflict[0] }} and {{ conflict[1] }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        <div class="alert alert-success" role="alert">
+            No conflicts detected.
+        </div>
+        {% endif %}
+
+        <h2>Your Selected Courses' Exam Schedule</h2>
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Course Number</th>
+                    <th>Course Title</th>
+                    <th>Date</th>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in schedule %}
+                <tr>
+                    <td>{{ exam.course_number }}</td>
+                    <td>{{ exam.course_title }}</td>
+                    <td>{{ exam.date }}</td>
+                    <td>{{ exam.day }}</td>
+                    <td>{{ exam.time }}</td>
+                    <td>{{ exam.location }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="alert alert-info" role="alert">
+            Take a screenshot😊
+        </div>
+
+        <a href="/" class="btn btn-primary">Back to Course Selection</a>
+        <footer class="text-center mt-5">
+            <p>Created by <strong>Mohammed Abudeeb</strong></p>
+        </footer>
+    </div>
+</body>
+</html>
