@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request
 import requests
 from datetime import datetime
@@ -82,5 +83,8 @@ def check_conflicts():
     # Render the results.html template and pass both conflicts and schedule
     return render_template('results.html', conflicts=conflicts, schedule=schedule_details, term=term_display)
 
+
+
 if __name__ == '__main__':
-    app.run(debug=True, use_reloader=False)
+    port = int(os.environ.get('PORT', 5001))
+    app.run(host='0.0.0.0', port=port)
