@@ -1,3 +1,4 @@
+
 import os
 from flask import Flask, render_template, request
 import requests
@@ -62,7 +63,6 @@ def index():
     # Pass the course list to the template
     return render_template('index.html', courses=course_list, term=term_display)
 
-
 @app.route('/check_conflicts', methods=['POST'])
 def check_conflicts():
     # Get the selected courses from the form
@@ -83,8 +83,5 @@ def check_conflicts():
     # Render the results.html template and pass both conflicts and schedule
     return render_template('results.html', conflicts=conflicts, schedule=schedule_details, term=term_display)
 
-
-
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5001))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True, use_reloader=False)
